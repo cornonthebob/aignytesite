@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIgnyte — Success Stories Nav Dropdown</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink: #1e1e1e;
+    --charcoal: #3a3a3a;
+    --mid: #6b6b6b;
+    --muted: #999;
+    --border: #e8e0d8;
+    --cream: #fdf6ef;
+    --cream2: #f9efe4;
+    --white: #ffffff;
+    --orange: #ed7d31;
+    --orange-dk: #c96018;
+    --orange-lt: #fef3ea;
+    --dark: #1a1209;
+    --dark2: #231a10;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background: var(--cream);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 200;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 52px; height: 60px;
+    background: rgba(255,255,255,0.97);
+    backdrop-filter: blur(12px);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .nav-logo { display: flex; align-items: center; text-decoration: none; }
+  .nav-logo-wordmark {
+    font-family: 'DM Serif Display', serif;
+    font-size: 20px; letter-spacing: -0.03em; color: var(--ink);
+  }
+  .nav-logo-wordmark em { font-style: normal; color: var(--orange); }
+
+  .nav-links { display: flex; gap: 4px; list-style: none; align-items: center; }
+  .nav-links > li > a {
+    font-size: 13.5px; font-weight: 500; color: var(--mid);
+    text-decoration: none; padding: 8px 12px; border-radius: 6px;
+    transition: color 0.15s, background 0.15s; display: block;
+  }
+  .nav-links > li > a:hover { color: var(--ink); background: var(--cream); }
+
+  .nav-cta {
+    font-size: 13px; font-weight: 700;
+    color: var(--white); background: var(--orange);
+    padding: 9px 22px; border-radius: 4px; text-decoration: none;
+    transition: background 0.15s; margin-left: 8px;
+  }
+  .nav-cta:hover { background: var(--orange-dk); }
+
+  /* ── DROPDOWN TRIGGER ── */
+  .nav-dropdown-trigger { position: relative; }
+  .nav-dropdown-trigger > a {
+    display: flex; align-items: center; gap: 5px;
+  }
+  .nav-dropdown-trigger > a .chevron {
+    width: 14px; height: 14px; opacity: 0.5;
+    transition: transform 0.2s ease, opacity 0.2s;
+  }
+  .nav-dropdown-trigger:hover > a .chevron,
+  .nav-dropdown-trigger:focus-within > a .chevron {
+    transform: rotate(180deg); opacity: 0.9;
+  }
+  .nav-dropdown-trigger:hover > a,
+  .nav-dropdown-trigger:focus-within > a {
+    color: var(--ink); background: var(--cream);
+  }
+
+  /* ── SUCCESS STORIES MEGA MENU ── */
+  .mega-menu {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 50%;
+    transform: translateX(-50%) translateY(-6px);
+    width: 680px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.10), 0 1px 4px rgba(0,0,0,0.06);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.18s ease, transform 0.18s ease;
+    overflow: hidden;
+  }
+  .nav-dropdown-trigger:hover .mega-menu,
+  .nav-dropdown-trigger:focus-within .mega-menu {
+    opacity: 1;
+    pointer-events: all;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  /* Header bar */
+  .mega-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 14px 22px 13px;
+    border-bottom: 1px solid var(--border);
+    background: var(--cream);
+  }
+  .mega-header-label {
+    font-family: 'DM Mono', monospace;
+    font-size: 10px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.1em;
+  }
+  .mega-header-link {
+    font-size: 12px; font-weight: 700; color: var(--orange);
+    text-decoration: none; display: flex; align-items: center; gap: 4px;
+    transition: gap 0.15s;
+  }
+  .mega-header-link:hover { gap: 7px; }
+
+  /* Case study cards — stacked single column */
+  .mega-stories { display: flex; flex-direction: column; gap: 1px; background: var(--border); }
+
+  .story-item {
+    display: flex; align-items: stretch; gap: 0;
+    background: var(--white);
+    text-decoration: none;
+    transition: background 0.12s;
+    position: relative;
+  }
+  .story-item:hover { background: var(--orange-lt); }
+  .story-item:hover .story-name { color: var(--orange); }
+  .story-item:hover .story-arrow { opacity: 1; transform: translateX(0); }
+  .story-item:hover .story-stat-num { color: var(--orange); }
+
+  /* Stat column — left accent block */
+  .story-stat {
+    width: 92px; flex-shrink: 0;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 18px 12px;
+    border-right: 1px solid var(--border);
+    background: var(--cream);
+    transition: background 0.12s;
+    text-align: center;
+  }
+  .story-item:hover .story-stat { background: rgba(237,125,49,0.06); border-color: rgba(237,125,49,0.2); }
+
+  .story-stat-num {
+    font-family: 'DM Serif Display', serif;
+    font-size: 26px; font-weight: 400; color: var(--charcoal);
+    line-height: 1; transition: color 0.12s;
+  }
+  .story-stat-metric {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px; font-weight: 700; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.06em;
+    margin-top: 4px; line-height: 1.3; text-align: center;
+  }
+
+  /* Content area */
+  .story-content {
+    flex: 1; padding: 16px 18px; display: flex; flex-direction: column; justify-content: center; gap: 4px;
+  }
+  .story-meta {
+    display: flex; align-items: center; gap: 6px; margin-bottom: 2px;
+  }
+  .story-vertical-badge {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px; font-weight: 700;
+    padding: 2px 7px; border-radius: 3px;
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+  .badge-nonprofit  { background: var(--orange-lt); color: var(--orange); }
+  .badge-retail     { background: #f0fdf4; color: #16a34a; }
+  .badge-healthcare { background: #fdf2f8; color: #be185d; }
+
+  .story-channel {
+    font-family: 'DM Mono', monospace;
+    font-size: 9px; font-weight: 600; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 0.06em;
+  }
+
+  .story-name {
+    font-size: 14px; font-weight: 700; color: var(--ink);
+    line-height: 1.3; transition: color 0.12s;
+  }
+  .story-desc {
+    font-size: 12px; color: var(--muted); line-height: 1.45; margin-top: 2px;
+  }
+
+  /* Arrow */
+  .story-arrow-wrap {
+    display: flex; align-items: center; padding: 0 18px 0 8px; flex-shrink: 0;
+  }
+  .story-arrow {
+    font-size: 14px; color: var(--orange);
+    opacity: 0; transform: translateX(-5px);
+    transition: opacity 0.12s, transform 0.12s;
+  }
+
+  /* Footer strip */
+  .mega-footer {
+    padding: 12px 20px;
+    background: var(--cream);
+    border-top: 1px solid var(--border);
+    display: flex; align-items: center; justify-content: space-between; gap: 16px;
+  }
+  .mega-footer-text {
+    font-size: 12px; color: var(--muted); line-height: 1.45;
+  }
+  .mega-footer-text strong { color: var(--charcoal); font-weight: 600; }
+  .mega-footer-cta {
+    font-size: 12px; font-weight: 700; color: var(--white);
+    background: var(--orange); padding: 7px 16px; border-radius: 4px;
+    text-decoration: none; transition: background 0.15s; white-space: nowrap;
+    flex-shrink: 0;
+  }
+  .mega-footer-cta:hover { background: var(--orange-dk); }
+
+  /* ── PAGE PLACEHOLDER ── */
+  .page-placeholder {
+    padding-top: 120px; max-width: 680px; margin: 0 auto;
+    padding-left: 52px; padding-right: 52px;
+  }
+  .page-placeholder h1 {
+    font-family: 'DM Serif Display', serif;
+    font-size: 42px; font-weight: 400; color: var(--ink);
+    line-height: 1.2; margin-bottom: 16px;
+  }
+  .page-placeholder p { font-size: 16px; color: var(--mid); line-height: 1.7; }
+  .hint {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin-bottom: 32px; padding: 8px 14px; border-radius: 6px;
+    background: var(--orange-lt); border: 1px solid rgba(237,125,49,0.3);
+    font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 600;
+    color: var(--orange); letter-spacing: 0.04em;
+  }
+
+  @media (max-width: 900px) {
+    nav { padding: 0 20px; }
+    .mega-menu { width: calc(100vw - 32px); left: 16px; transform: none; }
+    .nav-dropdown-trigger:hover .mega-menu,
+    .nav-dropdown-trigger:focus-within .mega-menu { transform: translateY(0); }
+  }
+</style>
+</head>
+<body>
+
+<nav>
+  <a class="nav-logo" href="#">
+    <span class="nav-logo-wordmark"><em>AI</em>gnyte</span>
+  </a>
+
+  <ul class="nav-links">
+    <li><a href="#">How It Works</a></li>
+    <li><a href="#">Technology</a></li>
+    <li><a href="#">Industries</a></li>
+
+    <!-- Success Stories dropdown trigger -->
+    <li class="nav-dropdown-trigger" tabindex="0">
+      <a href="index.html">
+        Success Stories
+        <svg class="chevron" viewBox="0 0 14 14" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M3 5L7 9L11 5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </a>
+
+      <div class="mega-menu">
+
+        <!-- Header -->
+        <div class="mega-header">
+          <span class="mega-header-label">Success Stories</span>
+          <a class="mega-header-link" href="index.html">View all →</a>
+        </div>
+
+        <!-- Case study cards -->
+        <div class="mega-stories">
+
+          <!-- Non-profit -->
+          <a class="story-item" href="aignyte-case-study-nonprofit.html">
+            <div class="story-stat">
+              <div class="story-stat-num">60%+</div>
+              <div class="story-stat-metric">Response<br>Rate Lift</div>
+            </div>
+            <div class="story-content">
+              <div class="story-meta">
+                <span class="story-vertical-badge badge-nonprofit">Non-Profit</span>
+                <span class="story-channel">Direct Mail</span>
+              </div>
+              <div class="story-name">60%+ increase in donor response rate for a large national non-profit</div>
+              <div class="story-desc">10.8M pieces · 10 campaigns · existing creative components only</div>
+            </div>
+            <div class="story-arrow-wrap">
+              <span class="story-arrow">→</span>
+            </div>
+          </a>
+
+          <!-- Fortune 10 retailer -->
+          <a class="story-item" href="aignyte-case-study-retailer.html">
+            <div class="story-stat">
+              <div class="story-stat-num">1.4x</div>
+              <div class="story-stat-metric">Response<br>Rate</div>
+            </div>
+            <div class="story-content">
+              <div class="story-meta">
+                <span class="story-vertical-badge badge-retail">Retail</span>
+                <span class="story-channel">Direct Mail</span>
+              </div>
+              <div class="story-name">1.4x response rate &amp; 2x campaign efficiency for a Fortune 10 retailer</div>
+              <div class="story-desc">4,000+ offer combinations · matched individually · no new creatives</div>
+            </div>
+            <div class="story-arrow-wrap">
+              <span class="story-arrow">→</span>
+            </div>
+          </a>
+
+          <!-- Hospital chain email -->
+          <a class="story-item" href="aignyte-case-study-email-ctr.html">
+            <div class="story-stat">
+              <div class="story-stat-num">70%</div>
+              <div class="story-stat-metric">Email CTR<br>Lift</div>
+            </div>
+            <div class="story-content">
+              <div class="story-meta">
+                <span class="story-vertical-badge badge-healthcare">Healthcare</span>
+                <span class="story-channel">Email</span>
+              </div>
+              <div class="story-name">70% increase in email click-through rate for a large hospital chain</div>
+              <div class="story-desc">Patient &amp; prospect engagement · individually matched content · no new creatives</div>
+            </div>
+            <div class="story-arrow-wrap">
+              <span class="story-arrow">→</span>
+            </div>
+          </a>
+
+        </div>
+
+        <!-- Footer -->
+        <div class="mega-footer">
+          <span class="mega-footer-text">Results delivered on <strong>existing creatives, existing data, existing processes</strong> — no new investment required.</span>
+          <a class="mega-footer-cta" href="aignyte-letstalk-modal.html">Let's Talk</a>
+        </div>
+
+      </div>
+    </li>
+
+    <li><a href="#">Blog</a></li>
+    <li><a href="#">FAQs</a></li>
+    <li><a href="#">Company</a></li>
+  </ul>
+
+  <a class="nav-cta" href="#">Let's Talk</a>
+</nav>
+
+<div class="page-placeholder">
+  <div class="hint">↑ Hover over "Success Stories" in the nav above</div>
+  <h1>AIgnyte — Success Stories dropdown demo</h1>
+  <p>Hover over the Success Stories link to see the dropdown. Each card shows the headline result stat, vertical badge, channel, case study title, and a one-line context note.</p>
+</div>
+
+</body>
+</html>

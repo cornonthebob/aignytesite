@@ -1,0 +1,401 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AIgnyte — Let's Talk Modal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=DM+Serif+Display:ital@0;1&family=DM+Mono:wght@400;500&display=swap">
+<style>
+  :root {
+    --ink:#1e1e1e; --charcoal:#3a3a3a; --mid:#6b6b6b; --muted:#999;
+    --border:#e8e0d8; --cream:#fdf6ef; --cream2:#f9efe4;
+    --white:#ffffff; --orange:#ed7d31; --orange-dk:#c96018;
+    --orange-lt:#fef3ea; --dark:#1a1209; --dark2:#231a10;
+    --go:#1a7a45; --go-lt:#edf7f2;
+    --error:#dc2626; --error-lt:#fef2f2;
+  }
+  *,*::before,*::after { box-sizing:border-box; margin:0; padding:0; }
+  body {
+    font-family:'Plus Jakarta Sans',sans-serif;
+    background:var(--cream); color:var(--ink);
+    min-height:100vh; display:flex; align-items:center; justify-content:center;
+    padding:40px 20px;
+  }
+
+  /* ── DEMO trigger ── */
+  .demo-trigger {
+    font-size:14px; font-weight:700; color:#fff;
+    background:var(--orange); padding:13px 32px;
+    border-radius:4px; border:none; cursor:pointer;
+    font-family:'Plus Jakarta Sans',sans-serif;
+    transition:background .15s;
+  }
+  .demo-trigger:hover { background:var(--orange-dk); }
+
+  /* ── OVERLAY ── */
+  .modal-overlay {
+    display:none;
+    position:fixed; inset:0; z-index:800;
+    background:rgba(26,18,9,0.6);
+    backdrop-filter:blur(4px);
+    align-items:center; justify-content:center;
+    padding:20px;
+    animation:overlayIn .2s ease both;
+  }
+  .modal-overlay.open { display:flex; }
+  @keyframes overlayIn { from{opacity:0} to{opacity:1} }
+
+  /* ── MODAL ── */
+  .modal {
+    background:var(--white);
+    border-radius:16px;
+    width:100%; max-width:560px;
+    box-shadow:0 24px 80px rgba(0,0,0,0.18), 0 2px 8px rgba(0,0,0,0.08);
+    animation:modalIn .25s cubic-bezier(.34,1.4,.64,1) both;
+    position:relative;
+    overflow:hidden;
+  }
+  @keyframes modalIn {
+    from { opacity:0; transform:scale(.94) translateY(12px); }
+    to   { opacity:1; transform:scale(1) translateY(0); }
+  }
+
+  /* Orange accent stripe at top */
+  .modal-stripe {
+    height:4px;
+    background:linear-gradient(90deg, var(--orange) 0%, #f5a06b 100%);
+  }
+
+  /* Header */
+  .modal-header {
+    padding:28px 32px 0;
+    display:flex; align-items:flex-start; justify-content:space-between; gap:16px;
+  }
+  .modal-header-text {}
+  .modal-eyebrow {
+    font-family:'DM Mono',monospace; font-size:10px; font-weight:700;
+    color:var(--orange); text-transform:uppercase; letter-spacing:.1em;
+    display:flex; align-items:center; gap:6px; margin-bottom:10px;
+  }
+  .modal-eyebrow-dot {
+    width:5px; height:5px; background:var(--orange); border-radius:50%; flex-shrink:0;
+  }
+  .modal-title {
+    font-family:'DM Serif Display',serif; font-size:28px; font-weight:400;
+    color:var(--ink); line-height:1.2;
+  }
+  .modal-subtitle {
+    font-size:14px; color:var(--mid); line-height:1.6; margin-top:8px;
+  }
+  .modal-close {
+    width:32px; height:32px; border-radius:50%; border:1.5px solid var(--border);
+    background:none; cursor:pointer; display:flex; align-items:center; justify-content:center;
+    color:var(--muted); flex-shrink:0; margin-top:2px;
+    transition:border-color .15s, color .15s, background .15s;
+    font-size:18px; line-height:1;
+  }
+  .modal-close:hover { border-color:var(--ink); color:var(--ink); background:var(--cream); }
+
+  /* Form */
+  .modal-form {
+    padding:24px 32px 32px;
+    display:flex; flex-direction:column; gap:16px;
+  }
+
+  .form-row { display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+
+  .field { display:flex; flex-direction:column; gap:6px; }
+  .field-label {
+    font-size:12px; font-weight:700; color:var(--charcoal);
+    letter-spacing:.02em;
+  }
+  .field-label span { color:var(--orange); margin-left:2px; }
+
+  .field-input {
+    font-family:'Plus Jakarta Sans',sans-serif;
+    font-size:14px; font-weight:500; color:var(--ink);
+    background:var(--cream); border:1.5px solid var(--border);
+    border-radius:8px; padding:11px 14px;
+    transition:border-color .15s, background .15s, box-shadow .15s;
+    outline:none; width:100%;
+    -webkit-appearance:none;
+  }
+  .field-input::placeholder { color:var(--muted); font-weight:400; }
+  .field-input:hover { border-color:#c8bfb6; }
+  .field-input:focus {
+    border-color:var(--orange); background:var(--white);
+    box-shadow:0 0 0 3px rgba(237,125,49,.12);
+  }
+  .field-input.error { border-color:var(--error); background:var(--error-lt); }
+  .field-input.error:focus { box-shadow:0 0 0 3px rgba(220,38,38,.12); }
+  .field-error { font-size:11px; color:var(--error); font-weight:600; display:none; }
+  .field-input.error ~ .field-error { display:block; }
+
+  /* Role select */
+  .field-select {
+    font-family:'Plus Jakarta Sans',sans-serif;
+    font-size:14px; font-weight:500; color:var(--ink);
+    background:var(--cream); border:1.5px solid var(--border);
+    border-radius:8px; padding:11px 14px;
+    transition:border-color .15s, background .15s, box-shadow .15s;
+    outline:none; width:100%; cursor:pointer;
+    -webkit-appearance:none;
+    background-image:url("data:image/svg+xml,%3Csvg width='12' height='8' viewBox='0 0 12 8' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 1L6 7L11 1' stroke='%23999' stroke-width='1.5' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-repeat:no-repeat;
+    background-position:calc(100% - 14px) center;
+    padding-right:36px;
+  }
+  .field-select:hover { border-color:#c8bfb6; }
+  .field-select:focus {
+    border-color:var(--orange); background-color:var(--white);
+    box-shadow:0 0 0 3px rgba(237,125,49,.12);
+  }
+  .field-select option[value=""] { color:var(--muted); }
+
+  .field-textarea {
+    resize:vertical; min-height:96px; line-height:1.6;
+  }
+  /* Privacy note */
+  .privacy-note {
+    display:flex; align-items:flex-start; gap:8px;
+    font-size:11.5px; color:var(--muted); line-height:1.55;
+    background:var(--cream); border-radius:8px; padding:10px 12px;
+    border:1px solid var(--border);
+  }
+  .privacy-note-icon { font-size:13px; flex-shrink:0; margin-top:1px; }
+
+  /* Submit */
+  .modal-submit {
+    font-family:'Plus Jakarta Sans',sans-serif;
+    font-size:15px; font-weight:700; color:#fff;
+    background:var(--orange); border:none; border-radius:8px;
+    padding:14px 28px; cursor:pointer; width:100%;
+    transition:background .15s, transform .1s;
+    display:flex; align-items:center; justify-content:center; gap:8px;
+  }
+  .modal-submit:hover { background:var(--orange-dk); }
+  .modal-submit:active { transform:scale(.99); }
+  .modal-submit:disabled { background:#ccc; cursor:not-allowed; transform:none; }
+
+  /* ── SUCCESS STATE ── */
+  .modal-success {
+    display:none;
+    padding:40px 32px 40px;
+    text-align:center;
+    flex-direction:column; align-items:center; gap:16px;
+  }
+  .success-icon {
+    width:56px; height:56px; border-radius:50%;
+    background:var(--go-lt); display:flex; align-items:center; justify-content:center;
+    font-size:24px; animation:popIn .4s cubic-bezier(.34,1.6,.64,1) both;
+  }
+  @keyframes popIn { from{transform:scale(0);opacity:0} to{transform:scale(1);opacity:1} }
+  .success-title {
+    font-family:'DM Serif Display',serif; font-size:26px; color:var(--ink);
+  }
+  .success-body { font-size:15px; color:var(--mid); line-height:1.65; max-width:360px; }
+  .success-close {
+    font-size:14px; font-weight:700; color:var(--orange);
+    background:none; border:none; cursor:pointer;
+    font-family:'Plus Jakarta Sans',sans-serif;
+    padding:8px 16px; border-radius:4px; transition:background .15s;
+  }
+  .success-close:hover { background:var(--orange-lt); }
+
+  /* ── MOBILE ── */
+  @media (max-width:520px) {
+    .modal { border-radius:14px 14px 0 0; max-width:100%; align-self:flex-end; }
+    .modal-overlay { align-items:flex-end; padding:0; }
+    @keyframes modalIn {
+      from { opacity:0; transform:translateY(32px); }
+      to   { opacity:1; transform:translateY(0); }
+    }
+    .modal-header { padding:24px 20px 0; }
+    .modal-form   { padding:20px 20px 32px; }
+    .form-row { grid-template-columns:1fr; }
+    .modal-title { font-size:24px; }
+    .modal-success { padding:32px 20px; }
+  }
+</style>
+</head>
+<body>
+
+<!-- Demo trigger button -->
+<button class="demo-trigger" onclick="openModal()">Let's Talk</button>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal-overlay">
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+    <div class="modal-stripe"></div>
+
+    <!-- Header -->
+    <div class="modal-header">
+      <div class="modal-header-text">
+        <div class="modal-eyebrow"><div class="modal-eyebrow-dot"></div>Get in touch</div>
+        <h2 class="modal-title" id="modal-title">Let's Talk</h2>
+        <p class="modal-subtitle">Tell us a little about yourself and we'll be in touch within one business day.</p>
+      </div>
+      <button class="modal-close" onclick="closeModal()" aria-label="Close">✕</button>
+    </div>
+
+    <!-- Form -->
+    <form class="modal-form" id="modal-form" novalidate onsubmit="submitForm(event)">
+
+      <div class="form-row">
+        <div class="field">
+          <label class="field-label" for="field-name">Name <span>*</span></label>
+          <input class="field-input" type="text" id="field-name" name="name"
+                 placeholder="Your full name" autocomplete="name">
+          <span class="field-error">Please enter your name</span>
+        </div>
+        <div class="field">
+          <label class="field-label" for="field-org">Organisation <span>*</span></label>
+          <input class="field-input" type="text" id="field-org" name="organisation"
+                 placeholder="Company or organisation" autocomplete="organization">
+          <span class="field-error">Please enter your organisation</span>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <div class="field">
+          <label class="field-label" for="field-role">Role <span>*</span></label>
+          <select class="field-select" id="field-role" name="role">
+            <option value="">Select your role…</option>
+            <option>Chief Marketing Officer</option>
+            <option>VP / Director of Marketing</option>
+            <option>VP / Director of Analytics</option>
+            <option>Direct Marketing Manager</option>
+            <option>Digital Marketing Manager</option>
+            <option>Data Science / Analytics</option>
+            <option>Technology / IT Leadership</option>
+            <option>C-Suite / Executive</option>
+            <option>Agency / Consultant</option>
+            <option>Other</option>
+          </select>
+          <span class="field-error" id="role-error">Please select your role</span>
+        </div>
+        <div class="field">
+          <label class="field-label" for="field-email">Work email <span>*</span></label>
+          <input class="field-input" type="email" id="field-email" name="email"
+                 placeholder="you@company.com" autocomplete="email">
+          <span class="field-error" id="email-error">Please enter a valid work email</span>
+        </div>
+      </div>
+
+      <div class="field">
+          <label class="field-label" for="field-issue">What's the primary business issue you're looking to solve? <span>*</span></label>
+          <textarea class="field-input field-textarea" id="field-issue" name="issue"
+                    placeholder="e.g. We want to improve response rates on our direct mail acquisition campaigns without increasing our creative budget…"
+                    rows="4"></textarea>
+          <span class="field-error">Please briefly describe your business issue</span>
+        </div>
+
+      <div class="privacy-note">
+        <span class="privacy-note-icon">🔒</span>
+        <span>We'll only use this to reach out about your enquiry. No marketing lists, no third-party sharing.</span>
+      </div>
+
+      <button class="modal-submit" type="submit" id="submit-btn">
+        <span id="submit-label">Send Message</span>
+        <span id="submit-arrow">→</span>
+      </button>
+
+    </form>
+
+    <!-- Success state (hidden initially) -->
+    <div class="modal-success" id="modal-success">
+      <div class="success-icon">✓</div>
+      <div class="success-title">Message sent</div>
+      <p class="success-body">Thank you — we'll be in touch within one business day. We look forward to learning about your campaigns.</p>
+      <button class="success-close" onclick="closeModal()">Close</button>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// ── Open / Close ──────────────────────────────────────────────────────────────
+function openModal() {
+  var overlay = document.getElementById('modal-overlay');
+  overlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+  setTimeout(function() {
+    var first = document.getElementById('field-name');
+    if (first) first.focus();
+  }, 100);
+}
+
+function closeModal() {
+  var overlay = document.getElementById('modal-overlay');
+  overlay.classList.remove('open');
+  document.body.style.overflow = '';
+  // Reset after close
+  setTimeout(resetModal, 300);
+}
+
+function resetModal() {
+  document.getElementById('modal-form').style.display = '';
+  document.getElementById('modal-success').style.display = 'none';
+  document.getElementById('modal-form').reset();
+  document.querySelectorAll('.field-input.error, .field-select.error').forEach(function(el) {
+    el.classList.remove('error');
+  });
+  document.getElementById('submit-btn').disabled = false;
+  document.getElementById('submit-label').textContent = 'Send Message';
+  document.getElementById('submit-arrow').textContent = '→';
+}
+
+// Close on overlay click
+document.getElementById('modal-overlay').addEventListener('click', function(e) {
+  if (e.target === this) closeModal();
+});
+
+// Close on Escape
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') closeModal();
+});
+
+// ── Validation & Submit ───────────────────────────────────────────────────────
+function validate(id, check) {
+  var el = document.getElementById(id);
+  var ok = check(el.value.trim());
+  el.classList.toggle('error', !ok);
+  return ok;
+}
+
+function submitForm(e) {
+  e.preventDefault();
+
+  var nameOk  = validate('field-name',  function(v) { return v.length > 0; });
+  var orgOk   = validate('field-org',   function(v) { return v.length > 0; });
+  var roleEl  = document.getElementById('field-role');
+  var roleOk  = roleEl.value !== '';
+  roleEl.classList.toggle('error', !roleOk);
+  var emailOk = validate('field-email', function(v) { return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v); });
+
+  var issueOk = validate('field-issue', function(v) { return v.length > 0; });
+
+  if (!nameOk || !orgOk || !roleOk || !emailOk || !issueOk) return;
+
+  // Loading state
+  var btn = document.getElementById('submit-btn');
+  btn.disabled = true;
+  document.getElementById('submit-label').textContent = 'Sending…';
+  document.getElementById('submit-arrow').textContent = '';
+
+  // Simulate send (replace with actual endpoint)
+  setTimeout(function() {
+    document.getElementById('modal-form').style.display = 'none';
+    var success = document.getElementById('modal-success');
+    success.style.display = 'flex';
+  }, 900);
+}
+
+// Clear error on input
+document.querySelectorAll('.field-input, .field-select').forEach(function(el) {
+  el.addEventListener('input', function() { this.classList.remove('error'); });
+});
+</script>
+</body>
+</html>
